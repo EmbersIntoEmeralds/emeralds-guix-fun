@@ -1,0 +1,11 @@
+(define-module (my-tealdeer)
+        #:use-module ((guix licenses) #:prefix license:)
+        #:use-module (guix git-download)
+        #:use-module (guix utils)
+        #:use-module (guix packages)
+        #:use-module (gnu packages)
+        #:use-module (guix build-system cargo)
+	#:use-module (gnu packages rust-apps)
+        #:use-module (gnu packages compression))
+
+(define-public my-tealdeer (package (inherit tealdeer) (version "1.8.1")))
