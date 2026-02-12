@@ -94,7 +94,18 @@ COMMIT
      )
      ;; This is the default list of services we
      ;; are appending to.
-     %desktop-services))
+     (modify-services %desktop-services
+	(guix-service-type config => (guix-configuration
+	  (inherit config)
+	  (substitute-urls
+	    (append (list "https://substitutes.nonguix.org")
+		    %default-substitute-urls))
+	  (authorized-keys
+	    (append (list (local-file "./signing-key.pub"))
+		%default-authorized-guix-keys)
+	  )
+	))
+	)))
   (bootloader (bootloader-configuration
                 (bootloader grub-efi-bootloader)
                 (targets (list "/boot/efi"))
