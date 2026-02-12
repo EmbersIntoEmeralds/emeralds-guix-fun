@@ -61,8 +61,15 @@ COMMIT
   ;; under their own account: use 'guix search KEYWORD' to search
   ;; for packages and 'guix install PACKAGE' to install a package.
   (packages (append (map specification->package
-			 '("wmenu" "foot" "podman" "podman-compose" "buildah"))
-			   %base-packages))
+			 '(
+			   "wmenu" 
+			   "foot" 
+			   "podman" 
+			   "podman-compose" 
+			   "buildah"
+			   )
+		     )
+		     %base-packages))
 
   ;; Below is the list of system services.  To search for available
   ;; services, run 'guix system search KEYWORD' in a terminal.
