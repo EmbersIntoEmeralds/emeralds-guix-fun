@@ -20,9 +20,9 @@
        (uri (git-reference
               (url "https://github.com/tealdeer-rs/tealdeer")
               (commit (string-append "v" version))))
-       (file-name (git-file-name name version))
        (sha256
         (base32
-         "1vg21b2vs06xxc32vwrq6bhdla81y95xqp7jsf2084g06m2asbvg"))))
+         "1d3877y9g1v6gi8a326d6wfz7z52qkrl70zi5ry7ybh5q6jha6a3"))))
 );;package
 )
+my-tealdeer
