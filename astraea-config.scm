@@ -34,6 +34,7 @@ COMMIT
 (use-modules (gnu)
 	     (gnu system accounts)
 		 (gnu services containers)
+		 (gnu packages shells)
 	     (nongnu packages linux))
 (use-service-modules desktop networking ssh xorg)
 
@@ -50,10 +51,11 @@ COMMIT
                   (comment "Ember")
                   (group "users")
                   (home-directory "/home/ember")
-                  (supplementary-groups '("wheel" 
-					  "netdev" 
-					  "audio" 
-					  "video" 
+                  (shell (file-append fish "/bin/fish"))
+                  (supplementary-groups '("wheel"
+					  "netdev"
+					  "audio"
+					  "video"
 					  "cgroup")))
                 %base-user-accounts))
 
@@ -62,11 +64,13 @@ COMMIT
   ;; for packages and 'guix install PACKAGE' to install a package.
   (packages (append (map specification->package
 			 '(
-			   "wmenu" 
-			   "foot" 
-			   "podman" 
-			   "podman-compose" 
-			   "buildah"
+				"wmenu"
+				"foot"
+				"podman"
+				"podman-compose"
+				"buildah"
+				"fish"
+				"7zip"
 			   )
 		     )
 		     %base-packages))
@@ -74,38 +78,51 @@ COMMIT
   ;; Below is the list of system services.  To search for available
   ;; services, run 'guix system search KEYWORD' in a terminal.
   (services
-   (append 
+   (append
      (list
        	(service iptables-service-type)
-	;;	 (iptables-configuration
-	;;	  (ipv4-rules %iptables-ipv4-rules)
-	;;	  (ipv6-rules %iptables-ipv6-rules)))
-		(service rootless-podman-service-type
-	 (rootless-podman-configuration
-	   (subgids
-		(list (subid-range (name "ember"))))
-	   (subuids
-		(list (subid-range (name "ember"))))))
+	      ;;	 (iptables-configuration
+	      ;;	 (ipv4-rules %iptables-ipv4-rules)
+	      ;;	 (ipv6-rules %iptables-ipv6-rules)))
+		    (service rootless-podman-service-type
+	        (rootless-podman-configuration
+	          (subgids
+          		(list (subid-range (name "ember"))))
+      	    (subuids
+      		    (list (subid-range (name "ember"))))))
                  ;; To configure OpenSSH, pass an 'openssh-configuration'
                  ;; record as a second argument to 'service' below.
-        (service openssh-service-type)
+        (service openssh-service-type
+          (openssh-configuration
+           ;; (inherit config)
+           ;; (log-level 'debug)
+          )
+        )
         (set-xorg-configuration
           (xorg-configuration (keyboard-layout keyboard-layout)))
      )
      ;; This is the default list of services we
      ;; are appending to.
-     (modify-services %desktop-services
-	(guix-service-type config => (guix-configuration
-	  (inherit config)
-	  (substitute-urls
-	    (append (list "https://substitutes.nonguix.org")
-		    %default-substitute-urls))
-	  (authorized-keys
-	    (append (list (local-file "./signing-key.pub"))
-		%default-authorized-guix-keys)
-	  )
-	))
-	)))
+    (modify-services %desktop-services
+	    (guix-service-type config => (guix-configuration
+  	    (inherit config)
+	      (substitute-urls
+	        (append (list "https://substitutes.nonguix.org")
+		        %default-substitute-urls))
+	      (authorized-keys
+	        (append (list (plain-file "non-guix.pub"
+                                    "(public-key
+								                     (ecc
+								                     (curve Ed25519)
+								                     (q #C1FD53E5D4CE971933EC50C9F307AE2171A2D3B52C804642A7A35F84F3A4EA98#)
+								                     ))
+								                    "))
+		      %default-authorized-guix-keys))))
+		(gdm-service-type config => (gdm-configuration
+		(inherit config)
+		    (auto-suspend? #f)))
+	)
+    ))
   (bootloader (bootloader-configuration
                 (bootloader grub-efi-bootloader)
                 (targets (list "/boot/efi"))
